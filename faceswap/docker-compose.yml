@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  faceswap-cpu:
+    image: faceswap-cpu
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - $HOME/.Xauthority:/root/.Xauthority
+    environment:
+      - DISPLAY=${DISPLAY}
+    command: "bash -c 'xauth nlist $DISPLAY | sed -e \"s/^..../ffff/\" | xauth -f /root/.Xauthority nmerge - && /bin/bash'"
+    network_mode: host

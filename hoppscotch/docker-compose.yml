@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  hoppscotch-frontend:
+    image: hoppscotch/hoppscotch-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  hoppscotch-backend:
+    image: hoppscotch/hoppscotch-backend
+    ports:
+      - "3170:3170"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  hoppscotch-admin:
+    image: hoppscotch/hoppscotch-admin
+    ports:
+      - "3100:3100"
+    env_file:
+      - .env
+    restart: unless-stopped
