@@ -2,25 +2,21 @@ services:
   traefik:
     image: "traefik"
     container_name: "traefik"
-    restart: always
-    command:
-      - "--api=true"
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.mytlschallenge.acme.tlschallenge=true"
-      - "--certificatesresolvers.mytlschallenge.acme.email=${SSL_EMAIL}"
-      - "--certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json"
+    restart: unless-stopped
+    command: --api=true --api.insecure=true --providers.docker
     ports:
      - "80:80"
-     - "443:443"
+     - "4443:443"
+     - "8080:8080"
     volumes:
-      - traefik_data:/letsencrypt
+      - ./config:/etc/traefik
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      
-volumes:
-   traefik_data:
+      - ./config/traefik.yaml:/traefik.yaml:ro
+      - ./shared/:/shared
+    networks:
+      - traefik
+      - budibase_net
+
+networks:
+  traefik:
+  budibase_net:

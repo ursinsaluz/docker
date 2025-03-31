@@ -1,10 +1,10 @@
-sservices:
+services:
    appsmith:
      image: index.docker.io/appsmith/appsmith-ee
      container_name: appsmith
      ports:
          - "8081:80"
-         - "443:443"
+         - "444:443"
      volumes:
          - ./stacks:/appsmith-stacks
      restart: unless-stopped
@@ -14,3 +14,5 @@ sservices:
       - "traefik.http.routers.appsmith.entrypoints=websecure"
       - "traefik.http.routers.appsmith.tls.certresolver=lets-encrypt"
       - "traefik.http.services.appsmith.loadbalancer.server.port=8081"
+     environment:
+      -  APPSMITH_CUSTOM_DOMAIN=appsmith.localhost
