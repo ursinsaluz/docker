@@ -1,12 +1,16 @@
-version: "3.8"
-
 services:
   hoppscotch-frontend:
     image: hoppscotch/hoppscotch-frontend
     ports:
-      - "3000:3000"
+      - "3020:3000"
     env_file:
       - .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.hoppscotch-frontend.rule=Host(`hopscotch.localhost`)
+      - "traefik.http.routers.hoppscotch-frontend.entrypoints=websecure"
+      - "traefik.http.routers.hoppscotch-frontend.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.hoppscotch-frontend.loadbalancer.server.port=3020"
     restart: unless-stopped
 
   hoppscotch-backend:
@@ -15,6 +19,12 @@ services:
       - "3170:3170"
     env_file:
       - .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.hoppscotch-backend.rule=Host(`hopscotch.localhost`)
+      - "traefik.http.routers.hoppscotch-backend.entrypoints=websecure"
+      - "traefik.http.routers.hoppscotch-backend.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.hoppscotch-backend.loadbalancer.server.port=3170"
     restart: unless-stopped
 
   hoppscotch-admin:
@@ -23,4 +33,27 @@ services:
       - "3100:3100"
     env_file:
       - .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.hoppscotch-admin.rule=Host(`hopscotch.localhost`)
+      - "traefik.http.routers.hoppscotch-admin.entrypoints=websecure"
+      - "traefik.http.routers.hoppscotch-admin.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.hoppscotch-admin.loadbalancer.server.port=3100"
     restart: unless-stopped
+  
+  postgres: 
+    environment: 
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+    healthcheck: 
+      interval: 10s
+      retries: 10
+      test: "pg_isready -U \"postgres\" -d \"password\""
+      timeout: 2s
+    image: postgres:16.6
+    restart: always
+    volumes: 
+      - "db_data:/var/lib/postgresql/data"
+volumes: 
+  db_data: {}
