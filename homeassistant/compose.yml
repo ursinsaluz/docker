@@ -10,4 +10,14 @@ services:
       - /run/dbus:/run/dbus:ro
     restart: unless-stopped
     privileged: true
-    network_mode: host
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.localhost`)"
+      - "traefik.http.routers.homeassistant.entrypoints=web"
+      - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true

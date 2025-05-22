@@ -8,11 +8,17 @@ services:
      volumes:
          - ./stacks:/appsmith-stacks
      restart: unless-stopped
+     networks:
+       - default
+       - traefik
      labels:
       - traefik.enable=true
       - traefik.http.routers.appsmith.rule=Host(`appsmith.localhost`)
-      - "traefik.http.routers.appsmith.entrypoints=websecure"
-      - "traefik.http.routers.appsmith.tls.certresolver=lets-encrypt"
-      - "traefik.http.services.appsmith.loadbalancer.server.port=8081"
+      - "traefik.http.routers.appsmith.entrypoints=web"
+      - "traefik.http.services.appsmith.loadbalancer.server.port=80"
      environment:
       -  APPSMITH_CUSTOM_DOMAIN=appsmith.localhost
+networks:
+  default:
+  traefik:
+    external: true
