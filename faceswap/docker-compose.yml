@@ -9,4 +9,16 @@ services:
     environment:
       - DISPLAY=${DISPLAY}
     command: "bash -c 'xauth nlist $DISPLAY | sed -e \"s/^..../ffff/\" | xauth -f /root/.Xauthority nmerge - && /bin/bash'"
-    network_mode: host
+    ports:
+      - "8888:8888"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.faceswap.rule=Host(`faceswap.localhost`)"
+      - "traefik.http.routers.faceswap.entrypoints=web"
+      - "traefik.http.services.faceswap.loadbalancer.server.port=8888"
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true

@@ -29,14 +29,22 @@ services:
       EMAIL_VERIFICATION_DISABLED: ${EMAIL_VERIFICATION_DISABLED}
       PASSWORD_RESET_DISABLED: ${PASSWORD_RESET_DISABLED}
       S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE}
+    networks:
+      - default
+      - traefik
     labels:
       - traefik.enable=true
       - traefik.http.routers.formbricks.rule=Host(`formbricks.localhost`)
-      - "traefik.http.routers.formbricks.entrypoints=websecure"
-      - "traefik.http.routers.formbricks.tls.certresolver=lets-encrypt"
-      - "traefik.http.services.formbricks.loadbalancer.server.port=${MAIN_PORT}"
+      - "traefik.http.routers.formbricks.entrypoints=web"
+      - "traefik.http.services.formbricks.loadbalancer.server.port=3000"
 volumes:
   postgres:
     driver: local
   uploads:
     driver: local
+
+networks:
+  default:
+    driver: bridge
+  traefik:
+    external: true

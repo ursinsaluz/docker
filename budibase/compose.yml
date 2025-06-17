@@ -76,12 +76,14 @@ services:
       - "${MAIN_PORT}:10000"
     container_name: bbproxy
     image: budibase/proxy
+    networks:
+      - default
+      - budibase_net
     labels:
       - traefik.enable=true
       - traefik.http.routers.proxy-service.rule=Host(`budibase.localhost`)
-      - "traefik.http.routers.proxy-service.entrypoints=websecure"
-      - "traefik.http.routers.proxy-service.tls.certresolver=lets-encrypt"
-      - "traefik.http.services.proxy-service.loadbalancer.server.port=${MAIN_PORT}"
+      - "traefik.http.routers.proxy-service.entrypoints=web"
+      - "traefik.http.services.proxy-service.loadbalancer.server.port=10000"
     environment:
       - PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND=10
       - PROXY_RATE_LIMIT_API_PER_SECOND=20
@@ -120,3 +122,9 @@ volumes:
     driver: local
   redis_data:
     driver: local
+
+networks:
+  default:
+    driver: bridge
+  budibase_net:
+    external: true

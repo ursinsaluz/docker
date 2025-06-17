@@ -9,12 +9,20 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.homepage.rule=Host(`homepage.localhost`)
-      - "traefik.http.routers.homepage.entrypoints=websecure"
-      - "traefik.http.routers.homepage.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.homepage.entrypoints=web"
       - "traefik.http.services.homepage.loadbalancer.server.port=3000"
     ports:
       - 127.0.0.1:3030:3000
     volumes:
       - ./config:/app/config # Make sure your local config directory exists
       - /var/run/docker.sock:/var/run/docker.sock:ro # optional, for docker integrations
+    networks:
+      - default
+      - traefik
     restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+  traefik:
+    external: true
