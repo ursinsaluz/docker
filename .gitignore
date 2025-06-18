@@ -6,3 +6,10 @@
 /traefik/shared/
 /traefik/config/
 /vespa/myapp/
+/.data/
+/nocodb/db_data/
+/nocodb/nc_data/
+/traefik/certs/
+/apitable/.data/
+/docuseal/pg_data/
+/docuseal/docuseal/

@@ -1,22 +1,56 @@
 services:
-  traefik:
-    image: "traefik"
-    container_name: "traefik"
+  mkcert:
+    environment:
+      - domain=example.com *.example.com example.test *.localhost *.docker.localhost docker.localhost localhost 127.0.0.1 ::1
     restart: unless-stopped
-    command: --api=true --api.insecure=true --providers.docker
-    ports:
-     - "80:80"
-     - "4443:443"
-     - "8080:8080"
+
+    container_name: mkcert
+
     volumes:
-      - ./config:/etc/traefik
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config/traefik.yaml:/traefik.yaml:ro
-      - ./shared/:/shared
+        - ./certs/:/root/.local/share/mkcert
+
+    image: vishnunair/docker-mkcert
+    labels:
+      - "traefik.enable=false"
+
     networks:
+      - web
+
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./config/dynamic/:/etc/traefik/dynamic/:ro
+      - ./certs/:/etc/traefik/certs
+      - ./shared/:/etc/certs:ro
+      - ./shared/:/shared
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.docker.localhost`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.service=traefik@docker"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
+    networks:
+      - web
       - traefik
       - budibase_net
 
 networks:
+  web:
+    external: true
   traefik:
+    external: true
   budibase_net:
+    external: true
