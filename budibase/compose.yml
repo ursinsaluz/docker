@@ -81,8 +81,9 @@ services:
       - budibase_net
     labels:
       - traefik.enable=true
-      - traefik.http.routers.proxy-service.rule=Host(`budibase.localhost`)
-      - "traefik.http.routers.proxy-service.entrypoints=web"
+      - traefik.http.routers.proxy-service.rule=Host(`budibase.docker.localhost`)
+      - "traefik.http.routers.proxy-service.entrypoints=websecure"
+      - "traefik.http.routers.proxy-service.tls=true"
       - "traefik.http.services.proxy-service.loadbalancer.server.port=10000"
     environment:
       - PROXY_RATE_LIMIT_WEBHOOKS_PER_SECOND=10

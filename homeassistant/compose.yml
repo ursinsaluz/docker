@@ -12,12 +12,13 @@ services:
     privileged: true
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.localhost`)"
-      - "traefik.http.routers.homeassistant.entrypoints=web"
+      - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.docker.localhost`)"
+      - "traefik.http.routers.homeassistant.entrypoints=websecure"
+      - "traefik.http.routers.homeassistant.tls=true"
       - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
     networks:
-      - traefik
+      - web
 
 networks:
-  traefik:
+  web:
     external: true

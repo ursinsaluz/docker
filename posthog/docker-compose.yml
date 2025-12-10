@@ -141,9 +141,18 @@ services:
     caddy:
         image: caddy:2.6.1
         restart: unless-stopped
-        ports:
-            - '80:80'
-            - '443:443'
+        networks:
+            - default
+            - web
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.posthog.rule=Host(`posthog.docker.localhost`)"
+            - "traefik.http.routers.posthog.entrypoints=websecure"
+            - "traefik.http.routers.posthog.tls=true"
+            - "traefik.http.services.posthog.loadbalancer.server.port=80"
+        # ports:
+        #     - '80:80'
+        #     - '443:443'
         volumes:
             - ./Caddyfile:/etc/caddy/Caddyfile
             - caddy-data:/data
@@ -300,3 +309,8 @@ volumes:
     redis-data:
     redis7-data:
     kafka-data:
+
+
+networks:
+    web:
+        external: true

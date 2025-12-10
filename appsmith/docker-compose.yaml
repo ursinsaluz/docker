@@ -1,24 +1,26 @@
 services:
-   appsmith:
-     image: index.docker.io/appsmith/appsmith-ee
-     container_name: appsmith
-     ports:
-         - "8081:80"
-         - "444:443"
-     volumes:
-         - ./stacks:/appsmith-stacks
-     restart: unless-stopped
-     networks:
-       - default
-       - traefik
-     labels:
+  appsmith:
+    image: index.docker.io/appsmith/appsmith-ee
+    container_name: appsmith
+    ports:
+      - "8081:80"
+      - "444:443"
+    volumes:
+      - ./stacks:/appsmith-stacks
+    restart: unless-stopped
+    networks:
+      - default
+      - web
+    labels:
       - traefik.enable=true
-      - traefik.http.routers.appsmith.rule=Host(`appsmith.localhost`)
-      - "traefik.http.routers.appsmith.entrypoints=web"
+      - traefik.http.routers.appsmith.rule=Host(`appsmith.docker.localhost`)
+      - "traefik.http.routers.appsmith.entrypoints=websecure"
+      - "traefik.http.routers.appsmith.tls=true"
       - "traefik.http.services.appsmith.loadbalancer.server.port=80"
-     environment:
-      -  APPSMITH_CUSTOM_DOMAIN=appsmith.localhost
+    environment:
+      - APPSMITH_CUSTOM_DOMAIN=appsmith.docker.localhost
 networks:
   default:
   traefik:
     external: true
+    name: web

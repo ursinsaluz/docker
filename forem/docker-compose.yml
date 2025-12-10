@@ -4,7 +4,7 @@ x-app: &app
     context: .
     args:
       PG_MAJOR: '13'
-  image: ghcr.io/forem/forem:1.0.0-development
+  image: ghcr.io/forem/forem:latest
   environment: &env
     NODE_ENV: ${NODE_ENV:-development}
     RAILS_ENV: ${RAILS_ENV:-development}
@@ -79,6 +79,15 @@ services:
   web:
     <<: *backend
     command: bundle exec rails server -b 0.0.0.0
+    networks:
+      - default
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.forem.rule=Host(`forem.docker.localhost`)"
+      - "traefik.http.routers.forem.entrypoints=websecure"
+      - "traefik.http.routers.forem.tls=true"
+      - "traefik.http.services.forem.loadbalancer.server.port=3000"
     ports:
       - '3000:3000'
     depends_on:
@@ -160,3 +169,8 @@ volumes:
   redis:
   assets:
   builds:
+
+
+networks:
+  web:
+    external: true

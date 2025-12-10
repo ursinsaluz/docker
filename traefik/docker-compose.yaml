@@ -7,7 +7,7 @@ services:
     container_name: mkcert
 
     volumes:
-        - ./certs/:/root/.local/share/mkcert
+        - ./config/certs/:/root/.local/share/mkcert
 
     image: vishnunair/docker-mkcert
     labels:
@@ -30,7 +30,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config/dynamic/:/etc/traefik/dynamic/:ro
-      - ./certs/:/etc/traefik/certs
+      - ./config/certs/:/etc/traefik/certs
       - ./shared/:/etc/certs:ro
       - ./shared/:/shared
 

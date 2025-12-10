@@ -1,15 +1,39 @@
-/homepage/config/
-/openproject/control/
+# General
+.env
+.DS_Store
+*.log
+*/.env
+*.env
+
+# Docker Data & Config
+.data/
+*_data/
+db_data/
+pg_data/
+mysql_data/
+redis_data/
+mongo_data/
+elasticsearch_data/
+volumes/
+config/
+traefik/certs/
+traefik/shared/
+
+# Node
+node_modules/
+.npm/
+.yarn/
+
+# Project Specific
 /appsmith/stacks/
-/n8n/local-files/
 /stirlingpdf/StirlingPDF/
-/traefik/shared/
-/traefik/config/
 /vespa/myapp/
-/.data/
-/nocodb/db_data/
-/nocodb/nc_data/
-/traefik/certs/
-/apitable/.data/
-/docuseal/pg_data/
-/docuseal/docuseal/
+/openproject/control/
+/nocodb/nocodb-db/*
+
+# Kestra
+kestra/kestra_data/
+*.db
+
+# Docuseal
+docuseal/docuseal/

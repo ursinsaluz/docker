@@ -8,15 +8,22 @@ services:
       - server-local-data:/tmp/server-local-data
       - docker-data:/tmp/docker-data
     command: >
-      bash -c "
-      chown -R 1000:1000 /tmp/server-local-data
-      && chown -R 1000:1000 /tmp/docker-data"
+      bash -c " chown -R 1000:1000 /tmp/server-local-data && chown -R 1000:1000 /tmp/docker-data"
 
   server:
     image: twentycrm/twenty:${TAG:-latest}
     volumes:
       - server-local-data:/app/packages/twenty-server/${STORAGE_LOCAL_PATH:-.local-storage}
       - docker-data:/app/docker-data
+    networks:
+      - default
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.twenty.rule=Host(`twenty.docker.localhost`)"
+      - "traefik.http.routers.twenty.entrypoints=websecure"
+      - "traefik.http.routers.twenty.tls=true"
+      - "traefik.http.services.twenty.loadbalancer.server.port=3000"
     ports:
       - "3000:3000"
     environment:
@@ -31,7 +38,6 @@ services:
       STORAGE_S3_ENDPOINT: ${STORAGE_S3_ENDPOINT}
 
       APP_SECRET: ${APP_SECRET:-replace_me_with_a_random_string}
-
       # MESSAGING_PROVIDER_GMAIL_ENABLED: ${MESSAGING_PROVIDER_GMAIL_ENABLED}
       # CALENDAR_PROVIDER_GOOGLE_ENABLED: ${CALENDAR_PROVIDER_GOOGLE_ENABLED}
       # AUTH_GOOGLE_CLIENT_ID: ${AUTH_GOOGLE_CLIENT_ID}
@@ -72,7 +78,7 @@ services:
     image: twentycrm/twenty:${TAG:-latest}
     volumes:
       - server-local-data:/app/packages/twenty-server/${STORAGE_LOCAL_PATH:-.local-storage}
-    command: ["yarn", "worker:prod"]
+    command: [ "yarn", "worker:prod" ]
     environment:
       PG_DATABASE_URL: postgres://${PG_DATABASE_USER:-postgres}:${PG_DATABASE_PASSWORD:-postgres}@${PG_DATABASE_HOST:-db}:${PG_DATABASE_PORT:-5432}/default
       SERVER_URL: ${SERVER_URL}
@@ -85,7 +91,6 @@ services:
       STORAGE_S3_ENDPOINT: ${STORAGE_S3_ENDPOINT}
 
       APP_SECRET: ${APP_SECRET:-replace_me_with_a_random_string}
-
       # MESSAGING_PROVIDER_GMAIL_ENABLED: ${MESSAGING_PROVIDER_GMAIL_ENABLED}
       # CALENDAR_PROVIDER_GOOGLE_ENABLED: ${CALENDAR_PROVIDER_GOOGLE_ENABLED}
       # AUTH_GOOGLE_CLIENT_ID: ${AUTH_GOOGLE_CLIENT_ID}
@@ -109,7 +114,7 @@ services:
       # EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT:-465}
       # EMAIL_SMTP_USER: ${EMAIL_SMTP_USER:-}
       # EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD:-}
-      
+
     depends_on:
       db:
         condition: service_healthy
@@ -139,3 +144,8 @@ volumes:
   docker-data:
   db-data:
   server-local-data:
+
+
+networks:
+  web:
+    external: true

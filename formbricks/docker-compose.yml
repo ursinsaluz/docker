@@ -31,11 +31,12 @@ services:
       S3_FORCE_PATH_STYLE: ${S3_FORCE_PATH_STYLE}
     networks:
       - default
-      - traefik
+      - web
     labels:
       - traefik.enable=true
-      - traefik.http.routers.formbricks.rule=Host(`formbricks.localhost`)
-      - "traefik.http.routers.formbricks.entrypoints=web"
+      - traefik.http.routers.formbricks.rule=Host(`formbricks.docker.localhost`)
+      - "traefik.http.routers.formbricks.entrypoints=websecure"
+      - "traefik.http.routers.formbricks.tls=true"
       - "traefik.http.services.formbricks.loadbalancer.server.port=3000"
 volumes:
   postgres:
@@ -48,3 +49,4 @@ networks:
     driver: bridge
   traefik:
     external: true
+    name: web
