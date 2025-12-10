@@ -17,14 +17,12 @@ This repository contains configurations for various open-source applications. Ea
 | Project | Description | Config |
 | :--- | :--- | :--- |
 | **Appsmith** | Low-code application platform | [Config](appsmith/docker-compose.yaml) |
-| **Automatisch** | Open source Zapier alternative | [Config](automatisch/docker-compose.yml) |
 | **Budibase** | Low-code platform for building business apps | [Config](budibase/compose.yml) |
 | **Corteza** | Digital work platform | [Config](corteza/docker-compose.yml) |
 | **DocuSeal** | Document signing and processing | [Config](docuseal/docker-compose.yml) |
 | **Faceswap** | Deepfakes software | [Config](faceswap/docker-compose.yml) |
 | **Forem** | Community platform software | [Config](forem/docker-compose.yml) |
 | **Formbricks** | Survey platform | [Config](formbricks/docker-compose.yml) |
-| **Frappe** | Web framework (ERPNext foundation) | [Config](frappe_docker/) |
 | **Home Assistant** | Home automation platform | [Config](homeassistant/compose.yml) |
 | **Homepage** | Dashboard for services | [Config](homepage/compose.yml) |
 | **Hoppscotch** | API development ecosystem | [Config](hoppscotch/docker-compose.yml) |
