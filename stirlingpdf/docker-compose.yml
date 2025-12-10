@@ -4,6 +4,15 @@ services:
     image: docker.stirlingpdf.com/stirlingtools/stirling-pdf:latest
     ports:
       - '8080:8080'
+    networks:
+      - default
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stirlingpdf.rule=Host(`stirlingpdf.docker.localhost`)"
+      - "traefik.http.routers.stirlingpdf.entrypoints=websecure"
+      - "traefik.http.routers.stirlingpdf.tls=true"
+      - "traefik.http.services.stirlingpdf.loadbalancer.server.port=8080"
     volumes:
       - ./StirlingPDF/trainingData:/usr/share/tessdata # Required for extra OCR languages
       - ./StirlingPDF/extraConfigs:/configs
@@ -13,3 +22,7 @@ services:
     environment:
       - DOCKER_ENABLE_SECURITY=false
       - LANGS=de_CH,en_GB,en_US,de_DE
+
+networks:
+  web:
+    external: true

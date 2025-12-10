@@ -1,6 +1,8 @@
 networks:
   nocobase:
     driver: bridge
+  web:
+    external: true
 
 services:
   app:
@@ -8,6 +10,7 @@ services:
     restart: always
     networks:
       - nocobase
+      - web
     depends_on:
       - postgres
     environment:
@@ -35,15 +38,15 @@ services:
       - ./storage:/app/nocobase/storage
     labels:
       - traefik.enable=true
-      - traefik.http.routers.app.rule=Host(`nocobase.localhost`)
+      - traefik.http.routers.app.rule=Host(`nocobase.docker.localhost`)
       - "traefik.http.routers.app.entrypoints=websecure"
-      - "traefik.http.routers.app.tls.certresolver=lets-encrypt"
-      - "traefik.http.services.app.loadbalancer.server.port=13000"
+      - "traefik.http.routers.app.tls=true"
+      - "traefik.http.services.app.loadbalancer.server.port=80"
     ports:
       - '13000:80'
     # init: true
 
-  # If using an existing database server, postgres service can be omitted
+    # If using an existing database server, postgres service can be omitted
   postgres:
     image: postgres:16
     restart: always

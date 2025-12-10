@@ -13,12 +13,13 @@ services:
       - "8888:8888"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.faceswap.rule=Host(`faceswap.localhost`)"
-      - "traefik.http.routers.faceswap.entrypoints=web"
+      - "traefik.http.routers.faceswap.rule=Host(`faceswap.docker.localhost`)"
+      - "traefik.http.routers.faceswap.entrypoints=websecure"
+      - "traefik.http.routers.faceswap.tls=true"
       - "traefik.http.services.faceswap.loadbalancer.server.port=8888"
     networks:
-      - traefik
+      - web
 
 networks:
-  traefik:
+  web:
     external: true

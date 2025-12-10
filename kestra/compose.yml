@@ -1,0 +1,27 @@
+services:
+  kestra:
+    image: kestra/kestra:latest
+    container_name: kestra
+    user: root
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-XX:UseSVE=0
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kestra.rule=Host(`kestra.localhost`)
+      - "traefik.http.routers.kestra.entrypoints=websecure"
+      - "traefik.http.routers.kestra.tls.certresolver=lets-encrypt"
+      - "traefik.http.services.kestra.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik"
+    volumes:
+      - ./kestra_data:/app/data
+      - /tmp:/tmp
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: ["server", "local"]
+    networks:
+      - traefik
+    pull_policy: always
+
+networks:
+  traefik:
+    external: true

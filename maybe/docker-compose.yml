@@ -50,6 +50,15 @@ services:
     ports:
       - 3000:3000
     restart: unless-stopped
+    networks:
+      - default
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.maybe.rule=Host(`maybe.docker.localhost`)"
+      - "traefik.http.routers.maybe.entrypoints=websecure"
+      - "traefik.http.routers.maybe.tls=true"
+      - "traefik.http.services.maybe.loadbalancer.server.port=3000"
     environment:
       <<: *rails_env
     depends_on:
@@ -98,3 +107,8 @@ volumes:
   app-storage:
   postgres-data:
   redis-data:
+
+
+networks:
+  web:
+    external: true

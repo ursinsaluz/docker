@@ -2,12 +2,15 @@ services:
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
+    networks:
+      - default
+      - web
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`portainer.localhost`)"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.docker.localhost`)"
       - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.services.portainer.loadbalancer.server.port=9443"
-      - "traefik.http.routers.portainer.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     ports:
       - "8000:8000"
       - "9000:9000"
@@ -19,3 +22,8 @@ services:
     command: --http-enabled
 volumes:
   data:
+
+
+networks:
+  web:
+    external: true

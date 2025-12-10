@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  app:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: docuseal/docuseal:latest
+    # Port 3000 wird nicht mehr direkt exposed, Traefik kümmert sich drum
+    # ports:
+    #  - 3000:3000
+    volumes:
+      - ./docuseal:/data/docuseal
+    environment:
+      # FORCE_SSL wird nicht mehr benötigt, Traefik kümmert sich um HTTPS
+      # - FORCE_SSL=${HOST}
+      # WICHTIG: Stellen Sie sicher, dass Docuseal von Traefik aus erreichbar ist.
+      # Setzen Sie die Basis-URL, damit Docuseal korrekte URLs generiert.
+      - APP_URL=https://${HOST}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/docuseal
+    networks:
+      - internal # App und DB im internen Netz
+      - web # App und Traefik im Proxy-Netz
+    labels:
+      # Traefik Konfiguration für diesen Service
+      - "traefik.enable=true"
+      # --- HTTP Router ---
+      # Definiert eine Regel: Wenn der Hostname ${HOST} ist...
+      - "traefik.http.routers.docuseal.rule=Host(`docuseal.docker.localhost`)"
+      - "traefik.http.routers.docuseal.entrypoints=websecure"
+      - "traefik.http.routers.docuseal.tls=true"
+      - "traefik.http.services.docuseal.loadbalancer.server.port=3000"
+      - "traefik.docker.network=web"
+
+  postgres:
+    image: postgres:15
+    volumes:
+      - './pg_data:/var/lib/postgresql/data'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: docuseal
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal # Nur im internen Netz
+
+networks:
+  web:
+    # Netzwerk für Traefik und App
+    external: true
+  internal:
+    # Netzwerk für interne Kommunikation (App <-> DB)
+    name: internal-network
+    internal: true # Verhindert externe Verbindungen zu diesem Netzwerk

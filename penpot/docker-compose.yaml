@@ -27,25 +27,27 @@ x-flags: &penpot-flags
   PENPOT_FLAGS: disable-email-verification enable-smtp enable-prepl-server disable-secure-session-cookies
 
 x-uri: &penpot-public-uri
-  PENPOT_PUBLIC_URI: http://localhost:9001
+  PENPOT_PUBLIC_URI: https://penpot.docker.localhost
 
-x-body-size: &penpot-http-body-size
+x-body-size:
   # Max body size (30MiB); Used for plain requests, should never be
   # greater than multi-part size
+  &penpot-http-body-size
   PENPOT_HTTP_SERVER_MAX_BODY_SIZE: 31457280
 
   # Max multipart body size (350MiB)
   PENPOT_HTTP_SERVER_MAX_MULTIPART_BODY_SIZE: 367001600
 
-
 networks:
   penpot:
+  web:
+    external: true
 
 volumes:
   penpot_postgres_v15:
   penpot_assets:
-  # penpot_traefik:
-  # penpot_minio:
+    # penpot_traefik:
+    # penpot_minio:
 
 services:
   ## Traefik service declaration example. Consider using it if you are going to expose
@@ -86,33 +88,17 @@ services:
 
     networks:
       - penpot
+      - web
 
     labels:
       - "traefik.enable=true"
-
-      ## HTTP: example of labels for the case where penpot will be exposed to the
-      ## internet with only HTTP (without HTTPS) using traefik.
-
-      # - "traefik.http.routers.penpot-http.entrypoints=web"
-      # - "traefik.http.routers.penpot-http.rule=Host(`<DOMAIN_NAME>`)"
-      # - "traefik.http.services.penpot-http.loadbalancer.server.port=80"
-
-      ## HTTPS: example of labels for the case where penpot will be exposed to the
-      ## internet with HTTPS using traefik.
-
-      # - "traefik.http.middlewares.http-redirect.redirectscheme.scheme=https"
-      # - "traefik.http.middlewares.http-redirect.redirectscheme.permanent=true"
-      # - "traefik.http.routers.penpot-http.entrypoints=web"
-      # - "traefik.http.routers.penpot-http.rule=Host(`<DOMAIN_NAME>`)"
-      # - "traefik.http.routers.penpot-http.middlewares=http-redirect"
-      # - "traefik.http.routers.penpot-https.entrypoints=websecure"
-      # - "traefik.http.routers.penpot-https.rule=Host(`<DOMAIN_NAME>`)"
-      # - "traefik.http.services.penpot-https.loadbalancer.server.port=80"
-      # - "traefik.http.routers.penpot-https.tls=true"
-      # - "traefik.http.routers.penpot-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.penpot.rule=Host(`penpot.docker.localhost`)"
+      - "traefik.http.routers.penpot.entrypoints=websecure"
+      - "traefik.http.routers.penpot.tls=true"
+      - "traefik.http.services.penpot.loadbalancer.server.port=8080"
 
     environment:
-      << : [*penpot-flags, *penpot-http-body-size]
+      <<: [ *penpot-flags, *penpot-http-body-size ]
 
   penpot-backend:
     image: "penpotapp/backend:${PENPOT_VERSION:-latest}"
@@ -134,7 +120,7 @@ services:
     ## container.
 
     environment:
-      << : [*penpot-flags, *penpot-public-uri, *penpot-http-body-size]
+      <<: [ *penpot-flags, *penpot-public-uri, *penpot-http-body-size ]
 
       ## Penpot SECRET KEY. It serves as a master key from which other keys for subsystems
       ## (eg http sessions, or invitations) are derived.
@@ -229,7 +215,7 @@ services:
     stop_signal: SIGINT
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U penpot"]
+      test: [ "CMD-SHELL", "pg_isready -U penpot" ]
       interval: 2s
       timeout: 10s
       retries: 5
@@ -252,7 +238,7 @@ services:
     restart: always
 
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
       interval: 1s
       timeout: 3s
       retries: 5
@@ -274,7 +260,6 @@ services:
       - "1080:1080"
     networks:
       - penpot
-
   ## Example configuration of MiniIO (S3 compatible object storage service); If you don't
   ## have preference, then just use filesystem, this is here just for the completeness.
 
